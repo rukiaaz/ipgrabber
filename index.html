@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DO NOT PRESS — 3 STRIKES YOU'RE OUT</title>
+    <style>
+        /* RESET */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* NEOBRUTALIST CORE */
+        :root {
+            --black: #000000;
+            --white: #ffffff;
+            --gray: #cccccc;
+            --dark-gray: #333333;
+            --red: #ff0000;
+            --shadow-hard: 8px 8px 0 var(--black);
+            --shadow-soft: 4px 4px 0 rgba(0,0,0,0.1);
+            --border-thick: 4px solid var(--black);
+            --border-thin: 2px solid var(--black);
+            --font-mono: 'Courier New', Courier, monospace;
+            --font-display: 'Impact', 'Arial Black', sans-serif;
+        }
+
+        body {
+            background: var(--white);
+            font-family: var(--font-mono);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* COUNTDOWN OVERLAY */
+        .countdown-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--black);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: flash 0.5s infinite;
+        }
+
+        @keyframes flash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        .countdown-number {
+            font-family: var(--font-display);
+            font-size: 20rem;
+            color: var(--white);
+            text-shadow: 10px 10px 0 var(--red);
+            animation: shake 0.2s infinite;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-20px); }
+            75% { transform: translateX(20px); }
+        }
+
+        /* CONTAINER */
+        .container {
+            max-width: 1200px;
+            padding: 40px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* MAIN CARD */
+        .brutal-card {
+            background: var(--white);
+            border: var(--border-thick);
+            box-shadow: var(--shadow-hard);
+            padding: 60px 40px;
+            text-align: center;
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+            transition: all 0.2s ease;
+        }
+
+        .brutal-card.warning-1 {
+            border-color: #ffaa00;
+            box-shadow: 8px 8px 0 #ffaa00;
+        }
+
+        .brutal-card.warning-2 {
+            border-color: #ff6600;
+            box-shadow: 8px 8px 0 #ff6600;
+        }
+
+        .brutal-card.warning-3 {
+            border-color: var(--red);
+            box-shadow: 8px 8px 0 var(--red);
+            animation: dangerPulse 0.5s infinite;
+        }
+
+        @keyframes dangerPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        /* WARNING STRIPES */
+        .warning-stripes {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 30px;
+            background: repeating-linear-gradient(
+                45deg,
+                var(--black) 0px,
+                var(--black) 10px,
+                var(--white) 10px,
+                var(--white) 20px
+            );
+            border-top: var(--border-thin);
+            border-bottom: var(--border-thin);
+        }
+
+        /* TYPOGRAPHY */
+        h1 {
+            font-family: var(--font-display);
+            font-size: 5rem;
+            text-transform: uppercase;
+            letter-spacing: -2px;
+            margin: 40px 0 20px;
+            line-height: 0.9;
+            position: relative;
+            display: inline-block;
+        }
+
+        h1::before {
+            content: "⚠️";
+            position: absolute;
+            left: -60px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 3rem;
+        }
+
+        h1::after {
+            content: "⚠️";
+            position: absolute;
+            right: -60px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 3rem;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            margin-bottom: 40px;
+            padding: 10px;
+            background: var(--black);
+            color: var(--white);
+            display: inline-block;
+            transform: rotate(-1deg);
+        }
+
+        /* WARNING TEXT */
+        .warning-text {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin: 30px 0;
+            padding: 20px;
+            border: var(--border-thick);
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0,0,0,0.05) 0px,
+                rgba(0,0,0,0.05) 2px,
+                transparent 2px,
+                transparent 4px
+            );
+            position: relative;
+        }
+
+        .warning-text::before {
+            content: "✖ ✖ ✖";
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--white);
+            padding: 0 20px;
+            font-size: 1rem;
+            color: var(--black);
+            font-weight: 700;
+        }
+
+        /* STRIKE INDICATOR */
+        .strike-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .strike {
+            width: 60px;
+            height: 60px;
+            border: var(--border-thick);
+            background: var(--white);
+            transition: all 0.3s ease;
+        }
+
+        .strike.active {
+            background: var(--red);
+            transform: scale(1.1);
+            box-shadow: var(--shadow-hard);
+            animation: strikePulse 1s infinite;
+        }
+
+        .strike.filled {
+            background: var(--black);
+        }
+
+        @keyframes strikePulse {
+            0%, 100% { transform: scale(1.1); }
+            50% { transform: scale(1.2); }
+        }
+
+        /* THE BUTTON - DO NOT PRESS */
+        .dont-press {
+            margin: 50px 0 30px;
+            position: relative;
+        }
+
+        .button-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .no-button {
+            background: var(--white);
+            border: var(--border-thick);
+            padding: 25px 60px;
+            font-family: var(--font-display);
+            font-size: 3rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: var(--black);
+            cursor: pointer;
+            box-shadow: var(--shadow-hard);
+            transition: all 0.1s ease;
+            position: relative;
+            z-index: 10;
+            min-width: 400px;
+        }
+
+        .no-button:hover {
+            background: var(--black);
+            color: var(--white);
+            transform: translate(-4px, -4px);
+            box-shadow: 12px 12px 0 var(--black);
+        }
+
+        .no-button:active {
+            transform: translate(4px, 4px);
+            box-shadow: 4px 4px 0 var(--black);
+        }
+
+        .no-button.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        /* PULSING WARNING */
+        .pulse-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            border: 4px solid var(--black);
+            border-radius: 0;
+            animation: pulse 2s infinite;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        @keyframes pulse {
+            0% {
+                width: 100%;
+                height: 100%;
+                opacity: 1;
+            }
+            100% {
+                width: 150%;
+                height: 180%;
+                opacity: 0;
+            }
+        }
+
+        /* COUNTER */
+        .counter {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 30px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .counter-box {
+            border: var(--border-thick);
+            padding: 10px 20px;
+            background: var(--black);
+            color: var(--white);
+            font-family: var(--font-mono);
+            font-size: 2rem;
+            min-width: 100px;
+        }
+
+        /* CONSEQUENCES AREA */
+        .consequences {
+            margin-top: 40px;
+            padding: 20px;
+            border: var(--border-thick);
+            background: var(--white);
+            min-height: 100px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .consequence-item {
+            padding: 15px 25px;
+            border: var(--border-thin);
+            background: var(--white);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 1.2rem;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* FLOATING ELEMENTS */
+        .floating-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .shape {
+            position: absolute;
+            border: var(--border-thick);
+            background: var(--white);
+            opacity: 0.1;
+            animation: float 20s infinite linear;
+        }
+
+        .shape-1 {
+            width: 200px;
+            height: 200px;
+            top: 10%;
+            left: 5%;
+            transform: rotate(45deg);
+        }
+
+        .shape-2 {
+            width: 300px;
+            height: 300px;
+            bottom: 10%;
+            right: 5%;
+            border-radius: 50%;
+        }
+
+        .shape-3 {
+            width: 150px;
+            height: 150px;
+            top: 50%;
+            left: 80%;
+            transform: skew(10deg, 20deg);
+        }
+
+        @keyframes float {
+            from {
+                transform: rotate(0deg) translate(0, 0);
+            }
+            to {
+                transform: rotate(360deg) translate(20px, 20px);
+            }
+        }
+
+        /* MESSAGES */
+        .message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--black);
+            color: var(--white);
+            padding: 15px 25px;
+            border: var(--border-thick);
+            font-weight: 700;
+            text-transform: uppercase;
+            transform: rotate(2deg);
+            z-index: 100;
+            animation: messageSlide 0.5s ease;
+        }
+
+        @keyframes messageSlide {
+            from {
+                transform: translateX(100%) rotate(2deg);
+            }
+            to {
+                transform: translateX(0) rotate(2deg);
+            }
+        }
+
+        /* RESET BUTTON */
+        .reset-button {
+            margin-top: 30px;
+            padding: 10px 30px;
+            background: var(--white);
+            border: var(--border-thin);
+            font-family: var(--font-mono);
+            font-size: 1rem;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .reset-button:hover {
+            background: var(--black);
+            color: var(--white);
+        }
+
+        .reset-button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        /* FACEBOOK REDIRECT NOTICE */
+        .facebook-notice {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #4267B2;
+            color: white;
+            padding: 15px 30px;
+            border: var(--border-thick);
+            font-weight: 700;
+            text-transform: uppercase;
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            animation: slideUp 0.5s ease;
+        }
+
+        .facebook-notice i {
+            font-size: 2rem;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translate(-50%, 100%);
+            }
+            to {
+                transform: translate(-50%, 0);
+            }
+        }
+
+        /* WARNING SIGNS */
+        .warning-signs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+            font-size: 2rem;
+        }
+
+        /* FOOTER */
+        .footer {
+            margin-top: 40px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: var(--dark-gray);
+            border-top: var(--border-thin);
+            padding-top: 20px;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            h1::before, h1::after {
+                font-size: 1.5rem;
+                left: -30px;
+                right: -30px;
+            }
+            .no-button {
+                font-size: 1.5rem;
+                padding: 15px 30px;
+                min-width: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- COUNTDOWN OVERLAY -->
+    <div class="countdown-overlay" id="countdownOverlay">
+        <div class="countdown-number" id="countdownNumber">3</div>
+    </div>
+
+    <!-- FACEBOOK REDIRECT NOTICE -->
+    <div class="facebook-notice" id="facebookNotice">
+        <span>📘</span>
+        <span>REDIRECTING TO FACEBOOK IN 3...</span>
+    </div>
+
+    <!-- FLOATING SHAPES -->
+    <div class="floating-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+    </div>
+
+    <!-- MAIN CONTAINER -->
+    <div class="container">
+        <div class="brutal-card" id="mainCard">
+            <!-- WARNING STRIPES -->
+            <div class="warning-stripes"></div>
+
+            <!-- HEADER -->
+            <h1>DO NOT PRESS</h1>
+            <div class="subtitle">⚠️ 3 STRIKES AND YOU'RE OUT ⚠️</div>
+
+            <!-- STRIKE INDICATOR -->
+            <div class="strike-container">
+                <div class="strike" id="strike1"></div>
+                <div class="strike" id="strike2"></div>
+                <div class="strike" id="strike3"></div>
+            </div>
+
+            <!-- WARNING TEXT -->
+            <div class="warning-text">
+                PRESSING THIS BUTTON 3 TIMES WILL SEND YOU TO<br>
+                <span style="background: black; color: white; padding: 5px;">FACEBOOK.COM</span>
+            </div>
+
+            <!-- WARNING SIGNS -->
+            <div class="warning-signs">
+                <span>🚫</span>
+                <span>⚠️</span>
+                <span>📘</span>
+                <span>⚠️</span>
+                <span>🚫</span>
+            </div>
+
+            <!-- THE BUTTON (DO NOT PRESS) -->
+            <div class="dont-press">
+                <div class="button-container">
+                    <button class="no-button" id="dangerButton">
+                        PRESS
+                    </button>
+                    <div class="pulse-ring"></div>
+                </div>
+            </div>
+
+            <!-- COUNTER -->
+            <div class="counter">
+                <span>PRESSES:</span>
+                <span class="counter-box" id="counter">0</span>
+                <span>/ 3</span>
+            </div>
+
+            <!-- CONSEQUENCES AREA -->
+            <div class="consequences" id="consequences">
+                <div class="consequence-item" style="background: #000000; color: white; border-color: black;">
+                    ⚡ 0/3 PRESSES ⚡
+                </div>
+            </div>
+
+            <!-- RESET BUTTON -->
+            <button class="reset-button" id="resetBtn" disabled>
+                ↻ GAME OVER (PRESSED 3 TIMES)
+            </button>
+
+            <!-- FOOTER -->
+            <div class="footer">
+                WARNING: AFTER 3 PRESSES, YOU WILL BE REDIRECTED TO FACEBOOK.<br>
+                THIS IS YOUR ONLY WARNING. CHOOSE WISELY.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // NeoBrutalist DO NOT PRESS Button - 3 strikes to Facebook
+        const button = document.getElementById('dangerButton');
+        const counter = document.getElementById('counter');
+        const consequences = document.getElementById('consequences');
+        const resetBtn = document.getElementById('resetBtn');
+        const mainCard = document.getElementById('mainCard');
+        const strike1 = document.getElementById('strike1');
+        const strike2 = document.getElementById('strike2');
+        const strike3 = document.getElementById('strike3');
+        const countdownOverlay = document.getElementById('countdownOverlay');
+        const countdownNumber = document.getElementById('countdownNumber');
+        const facebookNotice = document.getElementById('facebookNotice');
+
+        // State
+        let pressCount = 0;
+        let countdownActive = false;
+
+        // Consequence messages (Facebook themed)
+        const consequencesList = [
+            { text: "📘 FACEBOOK WANTS YOU", bg: "#4267B2", color: "white" },
+            { text: "⚠️ 2 PRESSES LEFT", bg: "black", color: "white" },
+            { text: "⚡ ONE MORE TO GO", bg: "black", color: "white" },
+            { text: "🔴 LAST WARNING", bg: "red", color: "white" },
+            { text: "🎯 TARGET: FACEBOOK", bg: "#4267B2", color: "white" },
+            { text: "💢 DON'T DO IT", bg: "black", color: "white" },
+            { text: "📘 ZUCK IS WAITING", bg: "#4267B2", color: "white" },
+            { text: "⚡ 3 STRIKES RULE", bg: "black", color: "white" },
+            { text: "🔨 SAY GOODBYE", bg: "red", color: "white" }
+        ];
+
+        // Show message
+        function showMessage(text, bg = 'black', color = 'white') {
+            const message = document.createElement('div');
+            message.className = 'message';
+            message.textContent = text;
+            message.style.background = bg;
+            message.style.color = color;
+            document.body.appendChild(message);
+
+            setTimeout(() => {
+                message.remove();
+            }, 2000);
+        }
+
+        // Add consequence
+        function addConsequence(text, bg, color) {
+            const element = document.createElement('div');
+            element.className = 'consequence-item';
+            element.textContent = text;
+            element.style.background = bg;
+            element.style.color = color;
+            element.style.borderColor = 'black';
+            
+            // Add random rotation for brutalism effect
+            element.style.transform = `rotate(${Math.random() * 2 - 1}deg)`;
+            
+            consequences.appendChild(element);
+
+            // Limit displayed consequences
+            while (consequences.children.length > 8) {
+                consequences.removeChild(consequences.firstChild);
+            }
+        }
+
+        // Update strikes
+        function updateStrikes(count) {
+            // Reset all
+            [strike1, strike2, strike3].forEach(s => {
+                s.classList.remove('active', 'filled');
+            });
+
+            // Show strikes based on count
+            if (count >= 1) {
+                strike1.classList.add('filled');
+                strike1.classList.add('active');
+            }
+            if (count >= 2) {
+                strike2.classList.add('filled');
+                strike2.classList.add('active');
+            }
+            if (count >= 3) {
+                strike3.classList.add('filled');
+                strike3.classList.add('active');
+            }
+
+            // Update card warning level
+            mainCard.classList.remove('warning-1', 'warning-2', 'warning-3');
+            if (count === 1) {
+                mainCard.classList.add('warning-1');
+                showMessage("⚠️ FIRST WARNING", "#ffaa00", "black");
+                addConsequence("⚠️ STRIKE 1", "#ffaa00", "black");
+            } else if (count === 2) {
+                mainCard.classList.add('warning-2');
+                showMessage("🔥 SECOND WARNING", "#ff6600", "white");
+                addConsequence("🔥 STRIKE 2", "#ff6600", "white");
+            } else if (count === 3) {
+                mainCard.classList.add('warning-3');
+                showMessage("💀 FINAL STRIKE", "red", "white");
+                addConsequence("💀 STRIKE 3", "red", "white");
+            }
+        }
+
+        // Start countdown to Facebook
+        function startFacebookCountdown() {
+            if (countdownActive) return;
+            countdownActive = true;
+
+            // Disable button
+            button.classList.add('disabled');
+            button.disabled = true;
+
+            // Show notice
+            facebookNotice.style.display = 'flex';
+            
+            let count = 3;
+            countdownNumber.textContent = count;
+            countdownOverlay.style.display = 'flex';
+
+            // Add final consequences
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    addConsequence("📘 SAY HI TO ZUCK", "#4267B2", "white");
+                }, i * 200);
+            }
+
+            const interval = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    countdownNumber.textContent = count;
+                    facebookNotice.innerHTML = `<span>📘</span><span>REDIRECTING TO FACEBOOK IN ${count}...</span>`;
+                    
+                    // Flash effect
+                    document.body.style.background = count % 2 === 0 ? 'red' : 'white';
+                } else {
+                    clearInterval(interval);
+                    countdownNumber.textContent = 'GO!';
+                    facebookNotice.innerHTML = '<span>📘</span><span>REDIRECTING NOW...</span>';
+                    
+                    setTimeout(() => {
+                        // GO TO FACEBOOK
+                        window.location.href = 'https://www.facebook.com';
+                    }, 500);
+                }
+            }, 1000);
+        }
+
+        // Button press handler
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            if (pressCount >= 3) return;
+
+            // Update counter
+            pressCount++;
+            counter.textContent = pressCount;
+
+            // Visual feedback
+            button.style.transform = 'translate(4px, 4px)';
+            button.style.boxShadow = '4px 4px 0 black';
+            
+            setTimeout(() => {
+                button.style.transform = '';
+                button.style.boxShadow = '';
+            }, 100);
+
+            // Update strikes
+            updateStrikes(pressCount);
+
+            // Add random consequence
+            const random = consequencesList[Math.floor(Math.random() * consequencesList.length)];
+            addConsequence(random.text, random.bg, random.color);
+
+            // Special messages based on count
+            if (pressCount === 1) {
+                showMessage("⚠️ ONE PRESS DOWN, TWO TO GO", "black", "white");
+            } 
+            else if (pressCount === 2) {
+                showMessage("🔥 ONE MORE AND YOU'RE DONE", "#ff6600", "white");
+                
+                // Create chaos
+                for (let i = 0; i < 5; i++) {
+                    setTimeout(() => {
+                        const square = document.createElement('div');
+                        square.style.position = 'fixed';
+                        square.style.width = '30px';
+                        square.style.height = '30px';
+                        square.style.background = '#ff6600';
+                        square.style.border = '3px solid black';
+                        square.style.left = Math.random() * 100 + '%';
+                        square.style.top = '-10%';
+                        square.style.zIndex = '9999';
+                        square.style.animation = `fall ${0.5 + Math.random()}s linear`;
+                        document.body.appendChild(square);
+                        
+                        setTimeout(() => square.remove(), 2000);
+                    }, i * 100);
+                }
+            }
+            else if (pressCount === 3) {
+                showMessage("💀 YOU DID IT. GOODBYE.", "red", "white");
+                
+                // Epic chaos
+                for (let i = 0; i < 30; i++) {
+                    setTimeout(() => {
+                        const square = document.createElement('div');
+                        square.style.position = 'fixed';
+                        square.style.width = '50px';
+                        square.style.height = '50px';
+                        square.style.background = '#4267B2';
+                        square.style.border = '4px solid black';
+                        square.style.left = Math.random() * 100 + '%';
+                        square.style.top = '-10%';
+                        square.style.zIndex = '9999';
+                        square.style.animation = `fall ${0.8 + Math.random()}s linear`;
+                        square.style.transform = `rotate(${Math.random() * 360}deg)`;
+                        document.body.appendChild(square);
+                        
+                        setTimeout(() => square.remove(), 2000);
+                    }, i * 50);
+                }
+
+                // Start Facebook countdown
+                setTimeout(() => {
+                    startFacebookCountdown();
+                }, 1000);
+            }
+        });
+
+        // Hover effects - more warnings
+        button.addEventListener('mouseenter', function() {
+            if (pressCount < 3 && Math.random() > 0.7) {
+                showMessage("🚫 STAY AWAY");
+            }
+        });
+
+        // Right click protection
+        button.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+            if (pressCount < 3) {
+                showMessage("🖱️ NICE TRY", "black", "white");
+                addConsequence("🖱️ RIGHT CLICK DETECTED", "black", "white");
+            }
+        });
+
+        // Double click mayhem
+        button.addEventListener('dblclick', function() {
+            if (pressCount < 3) {
+                showMessage("⚡ DOUBLE CLICK = 2 PRESSES?", "red", "white");
+                // Trigger two presses
+                button.click();
+                setTimeout(() => button.click(), 100);
+            }
+        });
+
+        // Reset button - can't reset after 3 strikes
+        resetBtn.addEventListener('click', function() {
+            if (pressCount === 3) return;
+            
+            pressCount = 0;
+            counter.textContent = '0';
+            updateStrikes(0);
+            
+            consequences.innerHTML = '<div class="consequence-item" style="background: #000000; color: white; border-color: black;">⚡ RESET ⚡</div>';
+            
+            showMessage("↻ RESET - YOU'VE BEEN GIVEN ANOTHER CHANCE", "black", "white");
+            
+            // Reset styles
+            document.body.style.background = 'white';
+            mainCard.classList.remove('warning-1', 'warning-2', 'warning-3');
+        });
+
+        // Key press detection (space bar = press)
+        document.addEventListener('keydown', function(e) {
+            if (e.code === 'Space' && document.activeElement !== button && pressCount < 3) {
+                e.preventDefault();
+                showMessage("⌨️ SPACE BAR = PRESS");
+                button.click();
+            }
+        });
+
+        // Add CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fall {
+                from {
+                    transform: translateY(0) rotate(0deg);
+                }
+                to {
+                    transform: translateY(100vh) rotate(720deg);
+                }
+            }
+            @keyframes fadeOut {
+                from {
+                    opacity: 1;
+                    transform: scale(1);
+                }
+                to {
+                    opacity: 0;
+                    transform: scale(2);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Easter egg - type "FACEBOOK" to trigger
+        let typed = '';
+        document.addEventListener('keypress', function(e) {
+            typed += e.key.toLowerCase();
+            if (typed.includes('facebook') && pressCount < 3) {
+                showMessage("📘 YOU TYPED IT - THAT'S CHEATING", "#4267B2", "white");
+                // Add 2 strikes
+                button.click();
+                setTimeout(() => button.click(), 200);
+                typed = '';
+            }
+            if (typed.length > 20) typed = typed.slice(-10);
+        });
+
+        // Console warning
+        console.log(
+            "%c⚠️ 3 STRIKES TO FACEBOOK ⚠️\n\n%cPress this button 3 times and you're going to Facebook.\nThis is not a drill. Choose wisely.",
+            "font-size: 24px; font-weight: bold; color: white; background: #4267B2; padding: 10px;",
+            "font-size: 16px; color: black; background: white; padding: 10px; border: 2px solid black;"
+        );
+
+        // Track mouse movement near button
+        let nearButton = false;
+        document.addEventListener('mousemove', function(e) {
+            if (pressCount >= 3) return;
+            
+            const rect = button.getBoundingClientRect();
+            const distance = Math.hypot(
+                e.clientX - (rect.left + rect.width/2),
+                e.clientY - (rect.top + rect.height/2)
+            );
+            
+            if (distance < 100 && !nearButton) {
+                nearButton = true;
+                if (Math.random() > 0.8) {
+                    showMessage("👀 YOU'RE TOO CLOSE");
+                }
+            } else if (distance >= 100) {
+                nearButton = false;
+            }
+        });
+
+        // Initial message
+        setTimeout(() => {
+            showMessage("⚠️ 3 PRESSES = FACEBOOK", "black", "white");
+        }, 2000);
+    </script>
+</body>
+</html>
